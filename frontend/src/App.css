@@ -1,42 +1,103 @@
+/* ========== Global App Layout ========== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff;
+  color: #222222;
+}
+
+html,
+body,
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  height: 100%;
+}
+
+/* App Wrapper Layout */
+.app-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Main Content Area - Grows to fill space between navbar and footer */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 404 Not Found Page */
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 200px);
   text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.not-found h1 {
+  font-size: 3rem;
+  color: #1a1a2e;
+  margin-bottom: 1rem;
+  font-weight: 800;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.not-found p {
+  font-size: 1.1rem;
+  color: #666666;
+  margin-bottom: 2rem;
+}
+
+/* ========== Responsive Design ========== */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
   }
-  to {
-    transform: rotate(360deg);
+
+  .not-found {
+    min-height: calc(100vh - 120px);
+    padding: 1.5rem;
+  }
+
+  .not-found h1 {
+    font-size: 2rem;
+  }
+
+  .not-found p {
+    font-size: 1rem;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
   }
-}
 
-.card {
-  padding: 2em;
-}
+  .not-found {
+    min-height: calc(100vh - 120px);
+    padding: 1rem;
+  }
 
-.read-the-docs {
-  color: #888;
+  .not-found h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .not-found p {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
 }
