@@ -26,8 +26,9 @@ const Login = ({ onSwitchToRegister, onLoginSuccess }) => {
             try {
                 await login(formData.email, formData.password);
                 toast.success('Login successful!');
+                // Call success callback immediately after auth state is set
                 if (onLoginSuccess) {
-                    setTimeout(onLoginSuccess, 500);
+                    onLoginSuccess();
                 }
             } catch (error) {
                 toast.error(error.response?.data?.message || 'Login failed');

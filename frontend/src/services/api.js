@@ -28,10 +28,10 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Clear token and redirect to login
+            // Clear token on unauthorized - let React Router handle redirect
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/login';
+            // Don't force redirect here - let PrivateRoute handle it
         }
         return Promise.reject(error);
     }
