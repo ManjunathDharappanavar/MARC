@@ -1,24 +1,51 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import mongoose from "mongoose";
-import connectDB from "./db/connect.js";
-const app = express();
+import connectDB from "./src/config/db.js";
 
+import authRoutes from "./src/routes/auth.routes.js";
+import assetRoutes from "./src/routes/asset.routes.js";
+import transactionRoutes from "./src/routes/transaction.routes.js";
+import reportRoutes from "./src/routes/report.routes.js";
 
 dotenv.config();
 connectDB();
 
+const app = express();
+
+/* ---------- MIDDLEWARE ---------- */
 app.use(cors());
 app.use(express.json());
 
+/* ---------- ROUTES ---------- */
+app.use("/api/auth", authRoutes);
+app.use("/api/assets", assetRoutes);
+app.use("/api/transactions", transactionRoutes);
+app.use("/api/reports", reportRoutes);
 
-const port = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+/* ---------- HEALTH CHECK ---------- */
+app.get("/", (req, res) => {
+  res.status(200).send("MARC Backend Running");
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+/* ---------- 404 HANDLER ---------- */
+app.use((req, res) => {
+  res.status(404).json({
+    message: `Route not found: ${req.originalUrl}`
+  });
+});
+
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+
+  res.status(err.statusCode || 500).json({
+    message: err.message || "Internal Server Error"
+  });
+});
+
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
