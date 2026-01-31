@@ -50,10 +50,12 @@ export const loginUser = catchAsync(async (req, res, next) => {
 
   if (user && (await user.matchPassword(password))) {
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role, // Added email to match register/profile
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
       token: generateToken(user),
     });
   } else {

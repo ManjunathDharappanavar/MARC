@@ -7,7 +7,8 @@ import toast from 'react-hot-toast';
 const Login = ({ onSwitchToRegister, onLoginSuccess }) => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
-    const { login, loading: authLoading } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
+    const { login } = useAuth();
 
     const validateForm = () => {
         const newErrors = {};
@@ -23,6 +24,7 @@ const Login = ({ onSwitchToRegister, onLoginSuccess }) => {
         setErrors(newErrors);
 
         if (Object.keys(newErrors).length === 0) {
+            setIsLoading(true);
             try {
                 await login(formData.email, formData.password);
                 toast.success('Login successful!');
@@ -31,7 +33,10 @@ const Login = ({ onSwitchToRegister, onLoginSuccess }) => {
                     onLoginSuccess();
                 }
             } catch (error) {
+                console.error("Login error:", error);
                 toast.error(error.response?.data?.message || 'Login failed');
+            } finally {
+                setIsLoading(false);
             }
         }
     };
@@ -84,10 +89,10 @@ const Login = ({ onSwitchToRegister, onLoginSuccess }) => {
 
                 <button
                     type="submit"
-                    disabled={authLoading}
+                    disabled={isLoading}
                     className="w-full mt-6 bg-gradient-to-r from-secondary to-primary text-white font-semibold py-2 rounded-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.5)] transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                    {authLoading ? 'Logging in...' : (
+                    {isLoading ? 'Logging in...' : (
                         <>
                             Login <ArrowRight className="w-4 h-4" />
                         </>
