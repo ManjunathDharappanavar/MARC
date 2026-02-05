@@ -1,57 +1,67 @@
 import Asset from "../models/Asset.js";
+import { catchAsync } from "../utils/catchAsync.js";
+import { AppError } from "../utils/AppError.js";
 
 /* CREATE */
-export const createAsset = async (req, res) => {
+export const createAsset = catchAsync(async (req, res, next) => {
   const { name, category, value } = req.body;
 
   const asset = await Asset.create({
     name,
     category,
     value: Number(value), // 👈 force number
-    createdBy: req.user._id
+    createdBy: req.user._id,
   });
 
   res.status(201).json(asset);
-};
-
+});
 
 /* READ ALL */
-export const getAssets = async (req, res) => {
-  const assets = await Asset.find();
+export const getAssets = catchAsync(async (req, res, next) => {
+  const assets = await Asset.find({ createdBy: req.user._id });
   res.json(assets);
-};
+});
 
 /* READ ONE */
-export const getAssetById = async (req, res) => {
-  const asset = await Asset.findById(req.params.id);
+export const getAssetById = catchAsync(async (req, res, next) => {
+  const asset = await Asset.findOne({
+    _id: req.params.id,
+    createdBy: req.user._id,
+  });
   if (!asset) {
-    return res.status(404).json({ message: "Asset not found" });
+    return next(new AppError("Asset not found", 404));
   }
   res.json(asset);
-};
+});
 
 /* UPDATE */
-export const updateAsset = async (req, res) => {
-  const asset = await Asset.findByIdAndUpdate(
-    req.params.id,
+export const updateAsset = catchAsync(async (req, res, next) => {
+  const asset = await Asset.findOneAndUpdate(
+    { _id: req.params.id, createdBy: req.user._id },
     req.body,
-    { new: true }
+    {
+      new: true,
+      runValidators: true,
+    }
   );
 
   if (!asset) {
-    return res.status(404).json({ message: "Asset not found" });
+    return next(new AppError("Asset not found", 404));
   }
 
   res.json(asset);
-};
+});
 
 /* DELETE */
-export const deleteAsset = async (req, res) => {
-  const asset = await Asset.findByIdAndDelete(req.params.id);
+export const deleteAsset = catchAsync(async (req, res, next) => {
+  const asset = await Asset.findOneAndDelete({
+    _id: req.params.id,
+    createdBy: req.user._id,
+  });
 
   if (!asset) {
-    return res.status(404).json({ message: "Asset not found" });
+    return next(new AppError("Asset not found", 404));
   }
 
   res.json({ message: "Asset deleted successfully" });
-};
+});

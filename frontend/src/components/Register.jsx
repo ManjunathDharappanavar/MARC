@@ -1,0 +1,143 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Mail, Lock, User } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import toast from 'react-hot-toast';
+
+const Register = ({ onSwitchToLogin, onRegisterSuccess }) => {
+    const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+    const [errors, setErrors] = useState({});
+    const { register, loading: authLoading } = useAuth();
+
+    const validateForm = () => {
+        const newErrors = {};
+        if (!formData.name.trim()) newErrors.name = 'Name is required';
+        if (!formData.email.trim()) newErrors.email = 'Email is required';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format';
+        if (!formData.password) newErrors.password = 'Password is required';
+        else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
+        if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+        return newErrors;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const newErrors = validateForm();
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length === 0) {
+            try {
+                await register(formData.name, formData.email, formData.password);
+                toast.success('Registration successful!');
+                // Call success callback immediately after auth state is set
+                if (onRegisterSuccess) {
+                    onRegisterSuccess();
+                }
+            } catch (error) {
+                toast.error(error.response?.data?.message || 'Registration failed');
+            }
+        }
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+        if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    };
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="w-full max-w-md"
+        >
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+                    <div className="relative">
+                        <User className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            placeholder="John Doe"
+                            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-secondary transition-colors text-white placeholder-gray-600"
+                        />
+                    </div>
+                    {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                    <div className="relative">
+                        <Mail className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="you@example.com"
+                            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-secondary transition-colors text-white placeholder-gray-600"
+                        />
+                    </div>
+                    {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <div className="relative">
+                        <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            placeholder="••••••••"
+                            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-secondary transition-colors text-white placeholder-gray-600"
+                        />
+                    </div>
+                    {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
+                </div>
+
+                <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
+                    <div className="relative">
+                        <Lock className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                        <input
+                            type="password"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            placeholder="••••••••"
+                            className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:border-secondary transition-colors text-white placeholder-gray-600"
+                        />
+                    </div>
+                    {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
+                </div>
+
+                <button
+                    type="submit"
+                    disabled={authLoading}
+                    className="w-full mt-6 bg-gradient-to-r from-secondary to-primary text-white font-semibold py-2 rounded-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.5)] transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                    {authLoading ? 'Creating Account...' : (
+                        <>
+                            Create Account <ArrowRight className="w-4 h-4" />
+                        </>
+                    )}
+                </button>
+            </form>
+
+            <p className="text-center text-gray-400 mt-4">
+                Already have an account?{' '}
+                <button onClick={onSwitchToLogin} className="text-secondary hover:text-secondary/80 font-medium transition-colors">
+                    Login
+                </button>
+            </p>
+        </motion.div>
+    );
+};
+
+export default Register;
